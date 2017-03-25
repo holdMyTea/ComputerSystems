@@ -141,6 +141,18 @@ public class Module {
         return matrix;
     }
 
+    public List<Node> getIncludedNodes() {
+        return includedNodes;
+    }
+
+    public List<Node> getInputNodes() {
+        return inputNodes;
+    }
+
+    public List<Node> getOutputNodes() {
+        return outputNodes;
+    }
+
     @Override
     public String toString() {
         String s = "Module " + moduleIndex + " has following nodes:\n\r";
