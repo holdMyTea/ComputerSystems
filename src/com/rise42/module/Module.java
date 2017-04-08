@@ -20,6 +20,8 @@ public class Module {
     private List<Node> inputNodes;
     private List<Node> outputNodes;
 
+    private int[][] firstMatrix, secondMatrix;
+
     public Module(int moduleIndex, JsonObject moduleJson) {
 
         int nodeCount = moduleJson.get("nodeCount").getAsInt();
@@ -36,16 +38,14 @@ public class Module {
         for (int i = 0; i < nodeCount; i++) {
             final int index = i;
             moduleJson.get(Integer.toString(i)).getAsJsonArray().forEach(
-                    (id) -> {
-                        includedNodes.get(index).addConnection(includedNodes.get(id.getAsInt()));
-                    }
+                    (id) -> includedNodes.get(index).addConnection(includedNodes.get(id.getAsInt()))
             );
         }
 
         JsonArray inputs = moduleJson.get("input").getAsJsonArray();
         inputNodes = new ArrayList<>(inputs.size());
         for (int i = 0; i < inputs.size(); i++) {
-            inputNodes.add(
+            inputNodes.add(i,
                     includedNodes.get(
                             inputs.get(i).getAsInt()
                     )
@@ -55,7 +55,7 @@ public class Module {
         JsonArray output = moduleJson.get("output").getAsJsonArray();
         outputNodes = new ArrayList<>(inputs.size());
         for (int i = 0; i < output.size(); i++) {
-            outputNodes.add(
+            outputNodes.add(i,
                     includedNodes.get(
                             output.get(i).getAsInt()
                     )
@@ -65,58 +65,68 @@ public class Module {
     }
 
     public int[][] buildFirstMatrix() {
+        if(firstMatrix != null)
+            return firstMatrix;
+
         int size = includedNodes.size();
-        int[][] m = new int[size][size];
+        firstMatrix = new int[size][size];
 
         for (int i = 1; i < size; i++) {
             for (int j = 0; j < size; j++) {
                 if (i == j) {
-                    m[i][j] = 0;
+                    firstMatrix[i][j] = 0;
                     break;
                 }
-                m[i][j] = includedNodes.get(i).isDirectlyConnected(
+                firstMatrix[i][j] = includedNodes.get(i).isDirectlyConnected(
                         includedNodes.get(j)
                 ) ? 1 : 0;
-                m[j][i] = m[i][j];
+                firstMatrix[j][i] = firstMatrix[i][j];
             }
         }
 
-        return m;
+        return firstMatrix;
     }
 
     public int[][] buildSecondMatrix() {
-        int size = includedNodes.size();
-        int[][] matrix = new int[size][size];
+        if(secondMatrix != null)
+            return secondMatrix;
 
-        Node targetNode;
+        int size = includedNodes.size();
+        secondMatrix = new int[size][size];
+
+        Node currentNode, targetNode;
 
         for (int i = 1; i < size; i++) {
+            currentNode = includedNodes.get(i);
 
             for (int j = 0; j < size; j++) {
-
                 targetNode = includedNodes.get(j);
 
                 if (i == j){
-                    matrix[i][j] = 0;
+                    secondMatrix[i][j] = 0;
                     break;
                 }
 
-                else if (includedNodes.get(i).isDirectlyConnected(targetNode)){
-                    matrix[i][j] = 1;
+                else if (currentNode.isDirectlyConnected(targetNode)){
+                    secondMatrix[i][j] = 1;
                 }
 
                 else {
 
+                    if((i == 7 || i == 4)&&(j == 7 || j == 4)){
+                        //System.out.println("BANG-BANG-BANG: i="+i+", j="+j);
+                    }
+
                     boolean keepUp = true;
 
                     int result = 2;
-                    List<Node> checkedNodes = includedNodes.get(i).getConnectedNodes();
+                    List<Node> checkedNodes = currentNode.getConnectedNodes();
 
                     while(keepUp){
 
                         for(Node node: checkedNodes){
                             if(node.isDirectlyConnected(targetNode)) {
-                                matrix[i][j] = result;
+                                secondMatrix[i][j] = result;
                                 keepUp = false;
                                 break;
                             }
@@ -133,12 +143,49 @@ public class Module {
 
                 }
 
-                matrix[j][i] = matrix[i][j];
+                secondMatrix[j][i] = secondMatrix[i][j];
             }
 
         }
 
-        return matrix;
+        return secondMatrix;
+    }
+
+    public boolean isConnectedToModule(int anotherModule){
+        for(Node input: inputNodes)
+            if(input.isConnectedToModule(anotherModule))
+                return true;
+
+        for(Node output: outputNodes)
+            if(output.isConnectedToModule(anotherModule))
+                return true;
+
+        return false;
+    }
+
+    public boolean areInputsConnectedToModule(int anotherModule){
+        for(Node input: inputNodes)
+            if(input.isConnectedToModule(anotherModule))
+                return true;
+
+        return false;
+    }
+
+    public boolean areOutputsConnectedToModule(int anotherModule){
+        for(Node output: outputNodes)
+            if(output.isConnectedToModule(anotherModule))
+                return true;
+
+        return false;
+    }
+
+    public int getMaxDistanceInModule() {
+        int max = -1;
+        for(int[] row: buildFirstMatrix())
+            for(int i: row)
+                if(i > max)
+                    max = i;
+        return max;
     }
 
     public List<Node> getIncludedNodes() {
@@ -151,6 +198,10 @@ public class Module {
 
     public List<Node> getOutputNodes() {
         return outputNodes;
+    }
+
+    public int getModuleIndex() {
+        return moduleIndex;
     }
 
     @Override

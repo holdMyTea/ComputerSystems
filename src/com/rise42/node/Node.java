@@ -36,27 +36,44 @@ public class Node {
         return false;
     }
 
-    public void deleteAllConnections() {
-        connectedNodes.clear();
-    }
-
     public void deleteConnectionsToAnotherModule() {
         for (int i = 0; i < connectedNodes.size(); i++)
             if (connectedNodes.get(i).getModuleIndex() != moduleIndex)
                 connectedNodes.remove(i);
     }
 
-    public void deleteConnectionsToModuleGreaterThan(int greatModule) {
-        for (int i = 0; i < connectedNodes.size(); i++)
-            if (connectedNodes.get(i).getModuleIndex() > greatModule)
+    public void deleteConnectionsToModule(int module){
+        for (int i = 0; i < connectedNodes.size(); i++) {
+            int anotherNodesIndex = connectedNodes.get(i).getModuleIndex();
+            if (anotherNodesIndex == module && anotherNodesIndex != moduleIndex)
                 connectedNodes.remove(i);
+        }
+    }
+
+    public boolean isConnectedToModule(int anotherModule){
+        for (Node node: connectedNodes){
+            if(node.getModuleIndex() == anotherModule){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /*public void deleteConnectionsToModuleGreaterThan(int greatModule) {
+        for (int i = 0; i < connectedNodes.size(); i++) {
+            int anotherNodesIndex = connectedNodes.get(i).getModuleIndex();
+            if (anotherNodesIndex > greatModule && anotherNodesIndex != moduleIndex)
+                connectedNodes.remove(i);
+        }
     }
 
     public void deleteConnectionsToModuleLesserThan(int smallModule) {
-        for (int i = 0; i < connectedNodes.size(); i++)
-            if (connectedNodes.get(i).getModuleIndex() < smallModule)
+        for (int i = 0; i < connectedNodes.size(); i++) {
+            int anotherNodesIndex = connectedNodes.get(i).getModuleIndex();
+            if (anotherNodesIndex < smallModule && anotherNodesIndex != moduleIndex)
                 connectedNodes.remove(i);
-    }
+        }
+    }*/
 
     public int getModuleIndex() {
         return moduleIndex;
@@ -80,14 +97,14 @@ public class Node {
 
     @Override
     public String toString() {
-        String s = "Node " + index + " in module " + moduleIndex
+        String s = "In module " + moduleIndex + " node " + index
                 + " is directly connected to: ";
 
         for (Node node : connectedNodes) {
-            s = s + node.getIndex() + " ";
+            s = s + node.getModuleIndex() + ":" + node.getIndex() + " ";
         }
 
-        return s + "\n\r";
+        return s;
     }
 
     public static boolean checkDirectConnectionInList(Node target, List<Node> list) {

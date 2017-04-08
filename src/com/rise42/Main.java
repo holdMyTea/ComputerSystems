@@ -1,13 +1,16 @@
 package com.rise42;
 
 
+import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.rise42.module.Module;
 import com.rise42.scheme.CircleScheme;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 public class Main {
 
@@ -18,47 +21,19 @@ public class Main {
                         "/home/rise42/Projects/ComputerSystems/res/scheme1.json", ""
                 )
         ).forEach(builder::append);
-        System.out.println(builder.toString());
+        //System.out.println(builder.toString());
 
-        JsonParser jsonParser = new JsonParser();
+        JsonObject module = new JsonParser().parse(builder.toString())
+                .getAsJsonObject().get("module")
+                .getAsJsonObject();
 
-        Module module = new Module(
-                0,
-                jsonParser.parse(builder.toString())
-                        .getAsJsonObject().get("module")
-                        .getAsJsonObject()
-        );
+        CircleScheme circleScheme = new CircleScheme(7, module);
 
-        Module module1 = new Module(
-                0,
-                jsonParser.parse(builder.toString())
-                        .getAsJsonObject().get("module")
-                        .getAsJsonObject()
-        );
+        int[][] matrix = circleScheme.buildSecondMatrix();
 
-        Module module2 = new Module(
-                0,
-                jsonParser.parse(builder.toString())
-                        .getAsJsonObject().get("module")
-                        .getAsJsonObject()
-        );
+        printPrettyMatrix(matrix);
 
-        System.out.println(module);
-
-        int[][] matrix1 = module.buildFirstMatrix();
-        System.out.println("Matrix1");
-
-        printPrettyMatrix(matrix1);
-
-        CircleScheme circleScheme = new CircleScheme();
-        circleScheme.addModule(module);
-        //circleScheme.addModule(module1);
-        circleScheme.addModule(module2);
-
-        int[][] matrix11 = circleScheme.buildFirstMatrix();
-        System.out.println("Matrix11");
-
-        printPrettyMatrix(matrix11);
+        System.out.println("Max is: "+findMaxInMatrix(matrix));
     }
 
     public static void printPrettyMatrix(int[][] matrix){
@@ -79,9 +54,25 @@ public class Main {
             else
                 System.out.print(i+"  ");
             for (int j : row) {
-                System.out.print(j+"  ");
+                if(Integer.toString(j).length() > 1)
+                    System.out.print(j+" ");
+                else
+                    System.out.print(j+"  ");
             }
             System.out.println();
         }
+    }
+
+    public static int findMaxInMatrix(int[][] m){
+        int max = -1;
+
+        for (int[] row: m)
+            for(int i: row){
+                if(i == 0) break;
+
+                if(i > max) max = i;
+            }
+
+        return max;
     }
 }
