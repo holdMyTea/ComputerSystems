@@ -11,19 +11,15 @@ import java.util.List;
  * Created by rise42 on 19/03/17.
  */
 
-public class Module {
+public abstract class Module {
 
-    private int moduleIndex;
+    protected int moduleIndex;
 
-    private List<Node> includedNodes;
+    protected List<Node> includedNodes;
 
-    private List<Node> inputNodes;
-    private List<Node> outputNodes;
-
-    private int[][] firstMatrix, secondMatrix;
+    protected int[][] firstMatrix, secondMatrix;
 
     public Module(int moduleIndex, JsonObject moduleJson) {
-
         int nodeCount = moduleJson.get("nodeCount").getAsInt();
 
         this.moduleIndex = moduleIndex;
@@ -41,27 +37,6 @@ public class Module {
                     (id) -> includedNodes.get(index).addConnection(includedNodes.get(id.getAsInt()))
             );
         }
-
-        JsonArray inputs = moduleJson.get("input").getAsJsonArray();
-        inputNodes = new ArrayList<>(inputs.size());
-        for (int i = 0; i < inputs.size(); i++) {
-            inputNodes.add(i,
-                    includedNodes.get(
-                            inputs.get(i).getAsInt()
-                    )
-            );
-        }
-
-        JsonArray output = moduleJson.get("output").getAsJsonArray();
-        outputNodes = new ArrayList<>(inputs.size());
-        for (int i = 0; i < output.size(); i++) {
-            outputNodes.add(i,
-                    includedNodes.get(
-                            output.get(i).getAsInt()
-                    )
-            );
-        }
-
     }
 
     public int[][] buildFirstMatrix() {
@@ -151,53 +126,8 @@ public class Module {
         return secondMatrix;
     }
 
-    public boolean isConnectedToModule(int anotherModule){
-        for(Node input: inputNodes)
-            if(input.isConnectedToModule(anotherModule))
-                return true;
-
-        for(Node output: outputNodes)
-            if(output.isConnectedToModule(anotherModule))
-                return true;
-
-        return false;
-    }
-
-    public boolean areInputsConnectedToModule(int anotherModule){
-        for(Node input: inputNodes)
-            if(input.isConnectedToModule(anotherModule))
-                return true;
-
-        return false;
-    }
-
-    public boolean areOutputsConnectedToModule(int anotherModule){
-        for(Node output: outputNodes)
-            if(output.isConnectedToModule(anotherModule))
-                return true;
-
-        return false;
-    }
-
-    public int getMaxDistanceInModule() {
-        int max = -1;
-        for(int[] row: buildFirstMatrix())
-            for(int i: row)
-                if(i > max)
-                    max = i;
-        return max;
-    }
-
     public List<Node> getIncludedNodes() {
         return includedNodes;
-    }
-
-    public List<Node> getInputNodes() {
-        return inputNodes;
-    }
-
-    public List<Node> getOutputNodes() {
-        return outputNodes;
     }
 
     public int getModuleIndex() {

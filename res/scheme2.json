@@ -1,5 +1,5 @@
 {
-  "topology":"circle",
+  "topology":"star",
   "module": {
     "nodeCount": 9,
     "0": [
@@ -29,13 +29,6 @@
     "8": [
       4,5,6,7
     ],
-    "input": [
-      0,
-      5
-    ],
-    "output": [
-      2,
-      7
-    ]
+    "hub": 4
   }
 }

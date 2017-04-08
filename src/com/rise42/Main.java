@@ -5,6 +5,8 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.rise42.module.Module;
 import com.rise42.scheme.CircleScheme;
+import com.rise42.scheme.Scheme;
+import com.rise42.scheme.StarScheme;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,18 +20,29 @@ public class Main {
         StringBuilder builder = new StringBuilder();
         Files.lines(
                 Paths.get(
-                        "/home/rise42/Projects/ComputerSystems/res/scheme1.json", ""
+                        "/home/rise42/Projects/ComputerSystems/res/scheme2.json", ""
                 )
         ).forEach(builder::append);
         //System.out.println(builder.toString());
 
-        JsonObject module = new JsonParser().parse(builder.toString())
-                .getAsJsonObject().get("module")
-                .getAsJsonObject();
+        JsonObject file = new JsonParser().parse(builder.toString()).getAsJsonObject();
+        JsonObject module = file.get("module").getAsJsonObject();
+        Scheme scheme;
 
-        CircleScheme circleScheme = new CircleScheme(7, module);
+        switch (file.get("topology").getAsString()){
 
-        int[][] matrix = circleScheme.buildSecondMatrix();
+            case "circle":
+                scheme = new CircleScheme(13, module);
+                break;
+
+            case "star":
+                scheme = new StarScheme(12, module);
+                break;
+
+            default:scheme = null;
+        }
+
+        int[][] matrix = scheme.buildSecondMatrix();
 
         printPrettyMatrix(matrix);
 
@@ -39,7 +52,9 @@ public class Main {
     public static void printPrettyMatrix(int[][] matrix){
         System.out.print("#  ");
         for (int i = 0; i < matrix.length; i++) {
-            if(Integer.toString(i).length() > 1)
+            if(Integer.toString(i).length() == 3)
+                System.out.print(Integer.toString(i).substring(1)+" ");
+            else if(Integer.toString(i).length() == 2)
                 System.out.print(i+" ");
             else
                 System.out.print(i+"  ");
@@ -49,7 +64,9 @@ public class Main {
         for (int i = 0; i < matrix.length; i++) {
 
             int[] row = matrix[i];
-            if(Integer.toString(i).length() > 1)
+            if(Integer.toString(i).length() == 3)
+                System.out.print(Integer.toString(i).substring(1)+" ");
+            else if(Integer.toString(i).length() == 2)
                 System.out.print(i+" ");
             else
                 System.out.print(i+"  ");

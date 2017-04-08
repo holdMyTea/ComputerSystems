@@ -1,10 +1,12 @@
 package com.rise42.scheme;
 
 import com.google.gson.JsonObject;
-import com.rise42.module.Module;
+import com.rise42.module.CircleModule;
 import com.rise42.node.Node;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 /**
  * Created by rise42 on 24/03/17.
@@ -14,19 +16,24 @@ public class CircleScheme extends Scheme {
     // left -- outputs, right -- inputs
     private int[][] interModuleMatrix;
 
+    private List<CircleModule> includedModules;
+
     public CircleScheme(int moduleCount, JsonObject obj) {
-        super(moduleCount, obj);
+        includedModules = new ArrayList<CircleModule>();
+
+        for (int i = 0; i < moduleCount; i++) {
+            addModule(new CircleModule(i, obj));
+        }
     }
 
-    @Override
-    public void addModule(Module module) {
+
+    public void addModule(CircleModule module) {
 
         if (includedModules.size() == 0) {
             includedModules.add(module);
         } else {
-
-            Module last = includedModules.get(includedModules.size() - 1);
-            Module first = includedModules.get(0);
+            CircleModule last = includedModules.get(includedModules.size() - 1);
+            CircleModule first = includedModules.get(0);
 
 
             last.getOutputNodes().forEach(
@@ -64,13 +71,10 @@ public class CircleScheme extends Scheme {
 
         int[][] inner = includedModules.get(0).buildSecondMatrix();
 
-        for (int eight = 0; eight < totalSize; eight += nodeCount) {
-
+        for (int eight = 0; eight < totalSize; eight += nodeCount)
             for (int i = 0; i < nodeCount; i++)
                 for (int j = 0; j < nodeCount; j++)
                     m[eight + i][eight + j] = inner[i][j];
-
-        }
 
         buildIntermoduleMatrix();
 
@@ -90,7 +94,7 @@ public class CircleScheme extends Scheme {
 
                 jNode = includedModules.get(j / nodeCount).getIncludedNodes().get(j % nodeCount);
 
-                m[i][j] = doIncreasingOrder(jNode, iNode);
+                m[i][j] = findDistance(jNode, iNode);
                 m[j][i] = m[i][j];
             }
 
@@ -99,8 +103,8 @@ public class CircleScheme extends Scheme {
         return m;
     }
 
-    private int doIncreasingOrder(Node low, Node high) {
-        Module sampleModule = includedModules.get(1);
+    private int findDistance(Node low, Node high) {
+        CircleModule sampleModule = includedModules.get(1);
         int[][] secondMatrix = sampleModule.buildSecondMatrix();
 
         boolean reversed = false;
@@ -124,7 +128,7 @@ public class CircleScheme extends Scheme {
 
             for (int i = 0; i < sampleModule.getOutputNodes().size(); i++) {
                 for (int j = 0; j < sampleModule.getInputNodes().size(); j++) {
-                    int d = 0;
+                    int d;
                     d = highOutput.get(sampleModule.getOutputNodes().get(j));
                     d += interModuleMatrix[i][j] * (moduleDistance);
                     d += secondMatrix[sampleModule.getOutputNodes().get(i).getIndex()][sampleModule.getInputNodes().get(j).getIndex()] * (moduleDistance - 1);
@@ -192,13 +196,13 @@ public class CircleScheme extends Scheme {
     }
 
     private void buildIntermoduleMatrix() {
-        Module sampleModule = includedModules.get(0);
+        CircleModule sampleModule = includedModules.get(0);
 
         interModuleMatrix = new int[sampleModule.getOutputNodes().size()][sampleModule.getInputNodes().size()];
 
         int[][] secondMatrix = sampleModule.buildSecondMatrix();
 
-        Module nextSample = includedModules.get(1);
+        CircleModule nextSample = includedModules.get(1);
 
         for (int i = 0; i < sampleModule.getOutputNodes().size(); i++)
             for (int j = 0; j < nextSample.getInputNodes().size(); j++) {
