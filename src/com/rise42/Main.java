@@ -3,17 +3,14 @@ package com.rise42;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.rise42.module.Module;
 import com.rise42.scheme.CircleScheme;
 import com.rise42.scheme.Scheme;
 import com.rise42.scheme.StarScheme;
 import com.rise42.scheme.TreeScheme;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
 
 public class Main {
 
@@ -51,7 +48,15 @@ public class Main {
 
         printPrettyMatrix(matrix);
 
-        System.out.println("Max is: "+findMaxInMatrix(matrix));
+        int s = findS(matrix);
+        int d = findD(matrix);
+        float meanD = findMeanD(matrix);
+
+        System.out.println("S: "+s);
+        System.out.println("D: "+ d);
+        System.out.println("Mean D: "+ meanD);
+        System.out.println("C: "+d * matrix.length * s);
+        System.out.println("T: "+2 * meanD / s);
     }
 
     public static void printPrettyMatrix(int[][] matrix){
@@ -85,7 +90,23 @@ public class Main {
         }
     }
 
-    public static int findMaxInMatrix(int[][] m){
+    public static int findS(int[][] m){
+        int local, max = 0;
+        for (int[] row: m){
+            local = 0;
+            for (int i: row){
+                if(i==1){
+                    local++;
+                }
+            }
+            if(local > max){
+                max = local;
+            }
+        }
+        return  max;
+    }
+
+    public static int findD(int[][] m){
         int max = -1;
 
         for (int[] row: m)
@@ -96,5 +117,15 @@ public class Main {
             }
 
         return max;
+    }
+
+    public static float findMeanD(int[][] m){
+        int totalSum = 0;
+
+        for (int[] row: m)
+            for(int i: row)
+                totalSum += i;
+
+        return (float) totalSum / (m.length * (m.length-1));
     }
 }
