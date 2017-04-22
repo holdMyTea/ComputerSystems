@@ -11,14 +11,14 @@ import java.util.List;
 /**
  * Created by rise42 on 24/03/17.
  */
-public class CircleScheme extends Scheme {
+public class LinearScheme extends Scheme {
 
     // left -- outputs, right -- inputs
     private int[][] interModuleMatrix;
 
     private List<CircleModule> includedModules;
 
-    public CircleScheme(int moduleCount, JsonObject obj) {
+    public LinearScheme(int moduleCount, JsonObject obj) {
         includedModules = new ArrayList<>();
 
         for (int i = 0; i < moduleCount; i++) {
@@ -33,25 +33,14 @@ public class CircleScheme extends Scheme {
             includedModules.add(module);
         } else {
             CircleModule last = includedModules.get(includedModules.size() - 1);
-            CircleModule first = includedModules.get(0);
-
 
             last.getOutputNodes().forEach(
                     (node) -> node.deleteConnectionsToModule(0)
             );
 
-            first.getInputNodes().forEach(
-                    (node) -> node.deleteConnectionsToModule(last.getModuleIndex())
-            );
-
             for (int i = 0; i < module.getInputNodes().size(); i++) {
                 module.getInputNodes().get(i).addConnection(last.getOutputNodes().get(i));
                 last.getOutputNodes().get(i).addConnection(module.getInputNodes().get(i));
-            }
-
-            for (int i = 0; i < module.getInputNodes().size(); i++) {
-                module.getOutputNodes().get(i).addConnection(first.getInputNodes().get(i));
-                first.getInputNodes().get(i).addConnection(module.getOutputNodes().get(i));
             }
 
             includedModules.add(module);
@@ -107,64 +96,38 @@ public class CircleScheme extends Scheme {
         CircleModule sampleModule = includedModules.get(1);
         int[][] secondMatrix = sampleModule.buildSecondMatrix();
 
+        // low.getModuleIndex() is always less than
+        if (low.getModuleIndex() > high.getModuleIndex()) System.out.println("SHIT");
+
         boolean reversed = false;
         int moduleDistance = high.getModuleIndex() - low.getModuleIndex();
-        if (includedModules.size() - high.getModuleIndex() + low.getModuleIndex() < moduleDistance) {
-            moduleDistance = includedModules.size() - high.getModuleIndex() + low.getModuleIndex();
-            reversed = true;
-        }
 
         int minDistance = Integer.MAX_VALUE;
 
-        if (reversed) {
-            HashMap<Node, Integer> lowInput = new HashMap<>(sampleModule.getOutputNodes().size());
-            for (Node input : sampleModule.getInputNodes()) {
-                lowInput.put(input, secondMatrix[low.getIndex()][input.getIndex()]);
-            }
 
-            HashMap<Node, Integer> highOutput = new HashMap<>(sampleModule.getOutputNodes().size());
-            for (Node output : sampleModule.getOutputNodes())
-                highOutput.put(output, secondMatrix[high.getIndex()][output.getIndex()]);
+        // distance from low Node to its module outputs
+        HashMap<Node, Integer> lowOutput = new HashMap<>(sampleModule.getOutputNodes().size());
+        for (Node output : sampleModule.getOutputNodes())
+            lowOutput.put(output, secondMatrix[low.getIndex()][output.getIndex()]);
 
-            for (int i = 0; i < sampleModule.getOutputNodes().size(); i++) {
-                for (int j = 0; j < sampleModule.getInputNodes().size(); j++) {
-                    int d;
-                    d = highOutput.get(sampleModule.getOutputNodes().get(j));
-                    d += interModuleMatrix[i][j] * (moduleDistance);
-                    d += secondMatrix[sampleModule.getOutputNodes().get(i).getIndex()][sampleModule.getInputNodes().get(j).getIndex()] * (moduleDistance - 1);
-                    d += lowInput.get(sampleModule.getInputNodes().get(i));
+        // distance from high Node to its nodule inputs
+        HashMap<Node, Integer> highInput = new HashMap<>(sampleModule.getInputNodes().size());
+        for (Node input : sampleModule.getInputNodes())
+            highInput.put(input, secondMatrix[high.getIndex()][input.getIndex()]);
 
-                    if (d < minDistance)
-                        minDistance = d;
-                }
-            }
-        } else {
-
-            // distance from low Node to its module outputs
-            HashMap<Node, Integer> lowOutput = new HashMap<>(sampleModule.getOutputNodes().size());
-            for (Node output : sampleModule.getOutputNodes())
-                lowOutput.put(output, secondMatrix[low.getIndex()][output.getIndex()]);
-
-            // distance from high Node to its nodule inputs
-            HashMap<Node, Integer> highInput = new HashMap<>(sampleModule.getInputNodes().size());
-            for (Node input : sampleModule.getInputNodes())
-                highInput.put(input, secondMatrix[high.getIndex()][input.getIndex()]);
-
-            for (int i = 0; i < sampleModule.getOutputNodes().size(); i++) {
-                for (int j = 0; j < sampleModule.getInputNodes().size(); j++) {
-                    int d;
-                    d = lowOutput.get(sampleModule.getOutputNodes().get(i));
-                    d += interModuleMatrix[i][j] * (moduleDistance);
-                    d += secondMatrix[sampleModule.getOutputNodes().get(i).getIndex()][sampleModule.getInputNodes().get(j).getIndex()] * (moduleDistance - 1);
-                    d += highInput.get(sampleModule.getInputNodes().get(j));
+        for (int i = 0; i < sampleModule.getOutputNodes().size(); i++) {
+            for (int j = 0; j < sampleModule.getInputNodes().size(); j++) {
+                int d;
+                d = lowOutput.get(sampleModule.getOutputNodes().get(i));
+                d += interModuleMatrix[i][j] * (moduleDistance);
+                d += secondMatrix[sampleModule.getOutputNodes().get(i).getIndex()][sampleModule.getInputNodes().get(j).getIndex()] * (moduleDistance - 1);
+                d += highInput.get(sampleModule.getInputNodes().get(j));
 
 
-                    if (d < minDistance)
-                        minDistance = d;
-                }
+                if (d < minDistance)
+                    minDistance = d;
             }
         }
-
 
         return minDistance;
     }

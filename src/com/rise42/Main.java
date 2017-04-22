@@ -3,10 +3,7 @@ package com.rise42;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import com.rise42.scheme.CircleScheme;
-import com.rise42.scheme.Scheme;
-import com.rise42.scheme.StarScheme;
-import com.rise42.scheme.TreeScheme;
+import com.rise42.scheme.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -18,7 +15,7 @@ public class Main {
         StringBuilder builder = new StringBuilder();
         Files.lines(
                 Paths.get(
-                        "/home/rise42/Projects/ComputerSystems/res/scheme3.json", ""
+                        "/home/rise42/Projects/ComputerSystems/res/scheme1.json", ""
                 )
         ).forEach(builder::append);
         //System.out.println(builder.toString());
@@ -28,6 +25,11 @@ public class Main {
         Scheme scheme;
 
         switch (file.get("topology").getAsString()){
+
+            case "line":
+                System.out.println("LINE");
+                scheme = new LinearScheme(13, module);
+                break;
 
             case "circle":
                 scheme = new CircleScheme(13, module);
