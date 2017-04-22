@@ -7,6 +7,7 @@ import com.rise42.module.Module;
 import com.rise42.scheme.CircleScheme;
 import com.rise42.scheme.Scheme;
 import com.rise42.scheme.StarScheme;
+import com.rise42.scheme.TreeScheme;
 
 import java.io.File;
 import java.io.IOException;
@@ -20,7 +21,7 @@ public class Main {
         StringBuilder builder = new StringBuilder();
         Files.lines(
                 Paths.get(
-                        "/home/rise42/Projects/ComputerSystems/res/scheme2.json", ""
+                        "/home/rise42/Projects/ComputerSystems/res/scheme3.json", ""
                 )
         ).forEach(builder::append);
         //System.out.println(builder.toString());
@@ -37,6 +38,10 @@ public class Main {
 
             case "star":
                 scheme = new StarScheme(12, module);
+                break;
+
+            case "tree":
+                scheme = new TreeScheme(15, module);
                 break;
 
             default:scheme = null;
