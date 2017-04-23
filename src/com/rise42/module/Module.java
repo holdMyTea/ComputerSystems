@@ -11,7 +11,7 @@ import java.util.List;
  * Created by rise42 on 19/03/17.
  */
 
-public abstract class Module {
+public class Module {
 
     protected int moduleIndex;
 

@@ -3,11 +3,13 @@ package com.rise42;
 
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.rise42.module.Module;
 import com.rise42.scheme.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Scanner;
 
 public class Main {
 
@@ -15,40 +17,48 @@ public class Main {
         StringBuilder builder = new StringBuilder();
         Files.lines(
                 Paths.get(
-                        "/home/rise42/Projects/ComputerSystems/res/scheme1.json", ""
+                        "/home/rise42/Projects/ComputerSystems/res/scheme3.json", ""
                 )
         ).forEach(builder::append);
-        //System.out.println(builder.toString());
 
         JsonObject file = new JsonParser().parse(builder.toString()).getAsJsonObject();
         JsonObject module = file.get("module").getAsJsonObject();
-        Scheme scheme;
 
-        switch (file.get("topology").getAsString()){
+        System.out.print("Module count: ");
+        int count = new Scanner(System.in).nextInt();
 
-            case "line":
-                System.out.println("LINE");
-                scheme = new LinearScheme(13, module);
-                break;
+        int[][] matrix;
 
-            case "circle":
-                scheme = new CircleScheme(13, module);
-                break;
+        if(count == 1) {
+            matrix = new Module(0, module).buildSecondMatrix();
+        } else if (count > 1){
+            Scheme scheme;
+            switch (file.get("topology").getAsString()){
 
-            case "star":
-                scheme = new StarScheme(12, module);
-                break;
+                case "line":
+                    System.out.println("LINE");
+                    scheme = new LinearScheme(count, module);
+                    break;
 
-            case "tree":
-                scheme = new TreeScheme(15, module);
-                break;
+                case "circle":
+                    scheme = new CircleScheme(count, module);
+                    break;
 
-            default:scheme = null;
-        }
+                case "star":
+                    scheme = new StarScheme(count, module);
+                    break;
 
-        int[][] matrix = scheme.buildSecondMatrix();
+                case "tree":
+                    scheme = new TreeScheme(count, module);
+                    break;
 
-        printPrettyMatrix(matrix);
+                default:scheme = null;
+            }
+
+            //matrix = scheme.buildSecondMatrix();
+        } else return;
+
+        /*printPrettyMatrix(matrix);
 
         int s = findS(matrix);
         int d = findD(matrix);
@@ -58,7 +68,7 @@ public class Main {
         System.out.println("D: "+ d);
         System.out.println("Mean D: "+ meanD);
         System.out.println("C: "+d * matrix.length * s);
-        System.out.println("T: "+2 * meanD / s);
+        System.out.println("T: "+2 * meanD / s);*/
     }
 
     public static void printPrettyMatrix(int[][] matrix){

@@ -24,6 +24,8 @@ public class CircleScheme extends Scheme {
         for (int i = 0; i < moduleCount; i++) {
             addModule(new CircleModule(i, obj));
         }
+
+        buildIntermoduleMatrix();
     }
 
 
@@ -75,8 +77,6 @@ public class CircleScheme extends Scheme {
             for (int i = 0; i < nodeCount; i++)
                 for (int j = 0; j < nodeCount; j++)
                     m[eight + i][eight + j] = inner[i][j];
-
-        buildIntermoduleMatrix();
 
         Node iNode, jNode;
 

@@ -20,22 +20,6 @@ public class TreeScheme extends Scheme {
 
     int leftToRight, leftToParent, rightToParent;
 
-    /*
-        If result is wrong, it means your moduleCount is not 15
-            ______
-          /       \
-         |         |
-         |  R.I.P. |
-         |         |
-         |         |
-         |         |
-       __|_________|__
-      |              |
-      |              |
-     #^#^#^#^#^#^#^#^#    <-- grass
-
-     */
-
     public TreeScheme(int moduleCount, JsonObject moduleJson) {
         this.moduleCount = moduleCount;
 
@@ -61,27 +45,40 @@ public class TreeScheme extends Scheme {
             |    |   |    | |    |  |    |
             0    2   4   6  8   10 12   14
          */
+
+        int desiredCount;
+        for (desiredCount = 1; moduleCount > desiredCount; desiredCount*=2) {}
+        //desiredCount*=2;
         tree = new HashMap<>(16);
 
-        for (int i = 2, offset = 1; i <= moduleCount * 2; i *= 2, offset *= 2) {
-            for (int j = 0; i * j < moduleCount; j++) {
+        for (int i = 2, offset = 1; i <= desiredCount * 2; i *= 2, offset *= 2) {
+            for (int j = 0; i * j < desiredCount; j++) {
                 int module = i * j + offset - 1;
 
                 String s = "";
-                for (int k = (moduleCount + 1) / 2; k >= i; k /= 2) {
+                for (int k = desiredCount /2; k >= i; k /= 2) {
                     for (int l = 1; ; l++) {
-                        if (i * j + offset - 1 < l * k) {
+                        if (module < l * k) {
                             s += l % 2 == 1 ? "l" : "r";
                             break;
                         }
-                        if (l >= moduleCount / k) {
+                        if (l >= desiredCount / k) {
                             s += "r";
                             break;
                         }
                     }
                 }
+                /*
+                // kostil for Yurets
+                if(s.isEmpty() && module+1 == desiredCount){
+                    for (int k = 1; k != desiredCount ; k*=2) {
+                        s += "r";
+                    }
 
-                tree.put(module, s);
+                }*/
+
+                if(module < moduleCount)
+                    tree.put(module, s);
             }
 
         }
