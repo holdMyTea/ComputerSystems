@@ -1,7 +1,6 @@
 package com.rise42.scheme;
 
 import com.google.gson.JsonObject;
-import com.rise42.module.Module;
 import com.rise42.module.StarModule;
 import com.rise42.node.Node;
 

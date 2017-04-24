@@ -1,6 +1,5 @@
 package com.rise42.module;
 
-import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.rise42.node.Node;
 

@@ -2,10 +2,11 @@ package com.rise42.scheme;
 
 import com.google.gson.JsonObject;
 import com.rise42.module.TreeModule;
-import com.sun.org.apache.bcel.internal.generic.FLOAD;
 
-import java.util.*;
-import java.util.function.Consumer;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
 
 
 /**
@@ -53,31 +54,27 @@ public class TreeScheme extends Scheme {
 
         Map<Float, String> floatMap = new HashMap<>(moduleCount + 1);
 
-        int desiredCount;
-        for (desiredCount = 1; moduleCount > desiredCount; desiredCount *= 2) {
-        }
-
-        for (int i = 1; !stop; i *= 2) {
+        for (int i = 1, pow=0; !stop; i *= 2, pow++) {
+            int path = 0;
             for (int j = 1; j < i * 2; j += 2) {
-                float fuck = (float) moduleCount / ((float) i * 2) * j;
-                //System.out.print(fuck + " ");
+                float key = (float) moduleCount / ((float) i * 2) * j;
 
                 String s = "";
-                for (int k = i; k > 1; k /= 2) {
-                    for (int l = 1; moduleCount > l; l++) {
-                        if (fuck < l * moduleCount / k) {
-                            s = l % 2 == 0 ? "r" + s : "l" + s;
-                            break;
-                        }
-                    }
+                int p = path;
+                for (int k = 0; k < pow; k++) {
+                    s = ((p & 1) == 1 ? 'r' : 'l') + s;
+                    p = p >> 1;
                 }
-                floatMap.put(fuck, s);
+
+                floatMap.put(key, s);
 
                 remaining--;
                 if (remaining == 0) {
                     stop = true;
                     break;
                 }
+
+                path++;
             }
         }
 
@@ -85,6 +82,7 @@ public class TreeScheme extends Scheme {
         Iterator<Float> iterator = floatMap.keySet().iterator();
         for (int i = 0; i < floatMap.size(); i++) {
             keys[i] = iterator.next();
+            System.out.println(i+": "+keys[i]);
         }
         System.out.println();
 
