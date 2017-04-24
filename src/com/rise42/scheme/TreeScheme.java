@@ -2,8 +2,10 @@ package com.rise42.scheme;
 
 import com.google.gson.JsonObject;
 import com.rise42.module.TreeModule;
+import com.sun.org.apache.bcel.internal.generic.FLOAD;
 
 import java.util.*;
+import java.util.function.Consumer;
 
 
 /**
@@ -46,41 +48,51 @@ public class TreeScheme extends Scheme {
             0    2   4   6  8   10 12   14
          */
 
-        int desiredCount;
-        for (desiredCount = 1; moduleCount > desiredCount; desiredCount*=2) {}
-        //desiredCount*=2;
-        tree = new HashMap<>(16);
+        boolean stop = false;
+        int remaining = moduleCount;
 
-        for (int i = 2, offset = 1; i <= desiredCount * 2; i *= 2, offset *= 2) {
-            for (int j = 0; i * j < desiredCount; j++) {
-                int module = i * j + offset - 1;
+        Map<Float, String> floatMap = new HashMap<>(moduleCount + 1);
+
+        int desiredCount;
+        for (desiredCount = 1; moduleCount > desiredCount; desiredCount *= 2) {
+        }
+
+        for (int i = 1; !stop; i *= 2) {
+            for (int j = 1; j < i * 2; j += 2) {
+                float fuck = (float) moduleCount / ((float) i * 2) * j;
+                //System.out.print(fuck + " ");
 
                 String s = "";
-                for (int k = desiredCount /2; k >= i; k /= 2) {
-                    for (int l = 1; ; l++) {
-                        if (module < l * k) {
-                            s += l % 2 == 1 ? "l" : "r";
-                            break;
-                        }
-                        if (l >= desiredCount / k) {
-                            s += "r";
+                for (int k = i; k > 1; k /= 2) {
+                    for (int l = 1; moduleCount > l; l++) {
+                        if (fuck < l * moduleCount / k) {
+                            s = l % 2 == 0 ? "r" + s : "l" + s;
                             break;
                         }
                     }
                 }
-                /*
-                // kostil for Yurets
-                if(s.isEmpty() && module+1 == desiredCount){
-                    for (int k = 1; k != desiredCount ; k*=2) {
-                        s += "r";
-                    }
+                floatMap.put(fuck, s);
 
-                }*/
-
-                if(module < moduleCount)
-                    tree.put(module, s);
+                remaining--;
+                if (remaining == 0) {
+                    stop = true;
+                    break;
+                }
             }
+        }
 
+        float[] keys = new float[floatMap.size()];
+        Iterator<Float> iterator = floatMap.keySet().iterator();
+        for (int i = 0; i < floatMap.size(); i++) {
+            keys[i] = iterator.next();
+        }
+        System.out.println();
+
+        Arrays.sort(keys);
+
+        tree = new HashMap<>(moduleCount+1);
+        for (int i = 0; i < keys.length; i++) {
+            tree.put(i, floatMap.get(keys[i]));
         }
 
         System.out.println("Count: " + tree.size());

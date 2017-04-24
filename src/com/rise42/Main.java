@@ -55,10 +55,10 @@ public class Main {
                 default:scheme = null;
             }
 
-            //matrix = scheme.buildSecondMatrix();
+            matrix = scheme.buildSecondMatrix();
         } else return;
 
-        /*printPrettyMatrix(matrix);
+        printPrettyMatrix(matrix);
 
         int s = findS(matrix);
         int d = findD(matrix);
@@ -68,7 +68,7 @@ public class Main {
         System.out.println("D: "+ d);
         System.out.println("Mean D: "+ meanD);
         System.out.println("C: "+d * matrix.length * s);
-        System.out.println("T: "+2 * meanD / s);*/
+        System.out.println("T: "+2 * meanD / s);
     }
 
     public static void printPrettyMatrix(int[][] matrix){
