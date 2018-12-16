@@ -17,7 +17,8 @@ public class Main {
         StringBuilder builder = new StringBuilder();
         Files.lines(
                 Paths.get(
-                        "/home/rise42/Projects/ComputerSystems/res/scheme3.json", ""
+                        "res/5scheme" +
+                                ".json", ""
                 )
         ).forEach(builder::append);
 
@@ -50,6 +51,10 @@ public class Main {
 
                 case "tree":
                     scheme = new TreeScheme(count, module);
+                    break;
+
+                case "grid":
+                    scheme = new GridScheme(count, module);
                     break;
 
                 default:scheme = null;

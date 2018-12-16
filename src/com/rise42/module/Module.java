@@ -86,11 +86,6 @@ public class Module {
                 }
 
                 else {
-
-                    if((i == 7 || i == 4)&&(j == 7 || j == 4)){
-                        //System.out.println("BANG-BANG-BANG: i="+i+", j="+j);
-                    }
-
                     boolean keepUp = true;
 
                     int result = 2;
